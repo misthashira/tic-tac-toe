@@ -1,175 +1,102 @@
-
-*, *::before,*::after {
-    box-sizing:  border-box;
+window.onload = () => {
+    startGame()
 }
 
-:root {
-    --cell-size: 100px;
-    --mark-size: calc(var(--cell-size) * .9);
+const X_CLASS = 'x';
+const O_CLASS = 'o';
+const WINNING_COMBINATIONS = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6] 
+]
+const cellElement = document.querySelectorAll('[data-cell]');
+const board = document.getElementById('board')
+const winningMessage  = document.querySelector('[data-winning-message-text]')
+const winningDisplay = document.querySelector('.winning-message')
+const restartButton = document.getElementById('restartButton')
+const date = document.getElementById('date')
+let circleTurn;
+
+console.log(cellElement)
+
+function startGame() {
+    circleTurn = false;
+    cellElement.forEach( cell => {
+        cell.classList.remove(X_CLASS)
+        cell.classList.remove(O_CLASS)
+        cell.removeEventListener('click',handleEvent)
+        cell.addEventListener('click', handleEvent, {once:true})
+    })
+    setBoardHoverClass()
+    winningDisplay.classList.remove('show')
+    newDate()
 }
 
-body {
-    margin: 0;
-    background-color: #eee;
-}
+function handleEvent(e) {
+    const cell = e.target
+    const currentClass = circleTurn ? O_CLASS : X_CLASS
 
-main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width:100%;
-    height: 100vh;
-
-}
-
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-}
-.board {
-    display: grid;
-    padding: 26px;
-    justify-content: center;
-    align-content: center;
-    grid-template-columns: repeat(3, auto);
-    justify-items: center;
-    border-radius: 7px;
-    align-items: center;
-    transition: all 0.9s;
-}
-
-.board:hover {
-    box-shadow: -1px 5px 15px rgba(0, 0, 0, 0.8);
-}
-
-.cell {
-    width: var(--cell-size);
-    height: var(--cell-size);
-    border: 1px solid black;
-    position: relative;
-    display: flex;
-    cursor: pointer;
-    justify-content: center;
-    align-items: center;
-}
-
-.cell:first-child,
-.cell:nth-child(2),
-.cell:nth-child(3) {
-    border-top: none
-}
-
-.cell:nth-child(3n + 1) {
-    border-left: none;
-}
-
-.cell:nth-child(3n) {
-    border-right: none;
-}
-
-.cell:nth-child(7),
-.cell:nth-child(8),
-.cell:nth-child(9) {
-    border-bottom: none;
-}
-
-.cell.x::before,
-.cell.x::after,
-.cell.o::before,
-.cell.o::after {
-    background-color: black;
-}
-
-.board.x .cell:not(.x):not(.o):hover::before,
-.board.x .cell:not(.x):not(.o):hover::after,
-.board.o .cell:not(.x):not(.o):hover::before,
-.board.o .cell:not(.x):not(.o):hover::after  {
-    background-color: lightgray;
+    placeMark(cell, currentClass)
+    if(checkWin(currentClass)){
+        endgame(false)
+    } else if (isDraw()) {
+        endgame(true)
+    } else {
+        swapTurns()
+        setBoardHoverClass()
+    }
 }
 
 
-.cell.x::before,
-.cell.x::after,
-.board.x .cell:not(.x):not(.o):hover::before,
-.board.x .cell:not(.x):not(.o):hover::after {
-    content: '';
-    width: calc(var(--mark-size) * .15);
-    position: absolute;
-    height: var(--mark-size);
+function endgame( draw ) {
+    if ( draw ) {
+        winningMessage.innerText = "It's a draw! "
+    }
+    else {
+        winningMessage.innerText = `${circleTurn ? " O's wins ": "X's wins"}`
+    }
+    winningDisplay.classList.add("show")
 }
 
-.cell.x::before,
-.board.x .cell:not(.x):not(.o):hover::before{
-    transform: rotate(45deg)
-}
-.cell.x::after,
-.board.x .cell:not(.x):not(.o):hover::after{
-    transform: rotate(-45deg)
+function placeMark(cell, currentClass) {
+    cell.classList.add(currentClass)
 }
 
 
-.cell.o::before,
-.cell.o::after,
-.board.o .cell:not(.x):not(.o):hover::before,
-.board.o .cell:not(.x):not(.o):hover::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
+function isDraw() {
+    return [...cellElement].every(cell => {
+        return cell.classList.contains(X_CLASS) || cell.classList.contains(O_CLASS)
+    })
 }
 
-.cell.o::before,
-.board.o .cell:not(.x):not(.o):hover::before{
-    width: var(--mark-size);
-    height: var(--mark-size);
-    
-}
-.cell.o::after,
-.board.o .cell:not(.x):not(.o):hover::after {
-    width: calc(var(--mark-size) * .7);
-    background-color: white;
-    height: calc(var(--mark-size) * .7);
-}
-.cell.x,
-.cell.o {
-    cursor: not-allowed;
+function swapTurns() {
+    circleTurn = !circleTurn
 }
 
-.winning-message {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.9);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: white;
-    font-size: 5rem;
+function setBoardHoverClass() {
+    board.classList.remove(X_CLASS)
+    board.classList.remove(O_CLASS)
+
+    if(circleTurn) {
+        board.classList.add(O_CLASS)
+    }else board.classList.add(X_CLASS);
 }
 
-.winning-message button {
-    font-size: 3rem;
-    background: none;
-    cursor: pointer;
-    border-radius: 3px;
-    padding: 2px 6px;
-    border: 1px solid white;
-    color: white;
-    margin-top: 4px;
-    transition: all 0.5s;
+function checkWin(currentClass) {
+   return WINNING_COMBINATIONS.some(combination => {
+        return combination.every(index => {
+            return cellElement[index].classList.contains(currentClass)
+        })
+    })
 }
-.winning-message.show {
-    display: flex;
+
+function newDate() {
+    let curr = new Date().getFullYear()
+    date.innerText = curr
 }
-.winning-message button:hover {
-    color:  rgb(34, 179, 34);
-    border: 1px solid rgb(34, 179, 34);
-}
+restartButton.onclick = () => startGame()
