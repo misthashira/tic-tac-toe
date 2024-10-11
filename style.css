@@ -1,0 +1,39 @@
+body{
+    display:grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    background-color: #ffffff;
+
+
+}
+.content{
+    display:grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    align-self: center;
+    justify-self: center;
+    margin-top: 50%;
+}
+.content:hover{
+    box-shadow: 0px 0px 20px #000000;
+    border-radius: 15px;
+}
+.box{
+    width: 100px;
+    height: 100px;
+    border-right: 5px solid green;
+    border-bottom: 5px solid green;
+    align-self: center;
+    cursor: pointer;
+
+}
+.box:hover{
+    box-shadow: 0px 5px 20px #000000;
+    border-radius: 15px;
+}
+#box{
+    border-right: 0px ;
+}
+#row{
+    border-bottom: 0px;
+}
